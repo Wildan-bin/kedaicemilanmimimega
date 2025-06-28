@@ -14,9 +14,70 @@
             }
         }
     </style>
+    <style>
+        .chat-widget {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 1000;
+            width: 300px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .chat-header {
+            background: linear-gradient(to right, #3c2f1f, #291e14);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .message {
+            margin: 8px 0;
+            padding: 8px 12px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: #e2e8f0;
+            margin-left: auto;
+            border-radius: 15px 15px 0 15px;
+        }
+
+        .bot-message {
+            background: #f2ece3;
+            margin-right: auto;
+            border-radius: 15px 15px 15px 0;
+        }
+
+        .chat-input {
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
 </head>
 <body class="font-oswald">
-    <div class="fixed bottom-8 right-4 md:bottom-12 md:right-12 bg-brown-dark rounded-[50%]">
+    <div class="fixed bottom-20 right-4 md:bottom-20 md:right-[28px] bg-brown-dark rounded-[50%]">
         <a href="#home" class="w-10 h-10 md:w-12 md:h-12 flex justify-center items-center">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.    5" stroke="currentColor" class="text-white/70 hover:text-white w-4 h-4 md:w-6 md:h-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
@@ -290,6 +351,42 @@
         </div>
     </footer>
 
+    <!-- Chat Widget -->
+<button onclick="toggleChat()" class="chat-toggle bg-brown-dark hover:bg-brown-darkest text-white rounded-full p-4 shadow-lg">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+    </svg>
+</button>
+
+<div id="chatWidget" class="chat-widget">
+    <div class="chat-header">
+        <div class="flex items-center">
+            <img src="image/kcmm.png" alt="KCMM Logo" class="w-8 h-8 rounded-full mr-2">
+            <span>KCMM Assistant</span>
+        </div>
+        <button onclick="toggleChat()" class="text-white hover:text-cream">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+    <div id="chatMessages" class="chat-messages"></div>
+    <div class="chat-input">
+        <div class="flex gap-2">
+            <input type="text" id="userInput" 
+                   class="w-full px-4 py-2 border rounded-full focus:outline-none focus:border-brown-light"
+                   placeholder="Ketik pertanyaan Anda..."
+                   onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()" 
+                    class="bg-brown-dark hover:bg-brown-darkest text-white rounded-full p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
     <script>
         tailwind.config = {
             theme: {
@@ -317,6 +414,82 @@
             const menu = document.querySelector('#mobile-menu');
             menu.classList.toggle('hidden');
         }
+
+        // FAQ Database
+const faqData = {
+    'halo': 'Halo! Selamat datang di KCMM Assistant 👋 Ada yang bisa saya bantu?',
+    'hai': 'Halo! Selamat datang di KCMM Assistant 👋 Ada yang bisa saya bantu?',
+    'hi': 'Halo! Selamat datang di KCMM Assistant 👋 Ada yang bisa saya bantu?',
+    'jam buka': 'Kami buka setiap hari dari jam 08.00 - 21.00 WIB',
+    'pesan wa': 'Ya, Anda bisa memesan melalui WhatsApp di nomor +6212 1977 6084',
+    'bahan pastel': 'Pastel ayam kami menggunakan bahan-bahan berkualitas seperti ayam fresh, wortel, kentang, dan bumbu pilihan',
+    'harga': 'Untuk daftar harga lengkap bisa cek di chat kami langsung via WhatsApp 😉',
+    'pengiriman': 'Kami melayani pengiriman via GoFood, GrabFood, dan kurir internal',
+    'lokasi': 'Kami berlokasi di Depok, untuk detail lokasi bisa cek di bagian Find Us',
+    'halal': 'Ya, semua produk kami dijamin halal dan sudah bersertifikat',
+    'minimal order': 'Minimal order untuk pengiriman adalah 50rb'
+};
+
+let isFirstMessage = true;
+
+function toggleChat() {
+    const chatWidget = document.getElementById('chatWidget');
+    chatWidget.style.display = chatWidget.style.display === 'none' ? 'block' : 'none';
+    
+    if (isFirstMessage) {
+        addBotMessage("Halo! Selamat datang di KCMM Assistant 👋\nAda yang bisa saya bantu?");
+        isFirstMessage = false;
+    }
+}
+
+function addMessage(message, isUser) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+    messageDiv.textContent = message;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function findAnswer(question) {
+    question = question.toLowerCase();
+    let bestMatch = '';
+    let highestSimilarity = 0;
+
+    for (let key in faqData) {
+        if (question.includes(key)) {
+            const similarity = key.length / question.length;
+            if (similarity > highestSimilarity) {
+                highestSimilarity = similarity;
+                bestMatch = key;
+            }
+        }
+    }
+
+    return highestSimilarity > 0 ? faqData[bestMatch] : 
+        "Maaf, saya tidak mengerti pertanyaan Anda. Silakan hubungi kami via WhatsApp untuk informasi lebih lanjut.";
+}
+
+function sendMessage() {
+    const userInput = document.getElementById('userInput');
+    const message = userInput.value.trim();
+    
+    if (message) {
+        addMessage(message, true);
+        setTimeout(() => {
+            const answer = findAnswer(message);
+            addMessage(answer, false);
+        }, 500);
+        
+        userInput.value = '';
+    }
+}
+
+// Initialize chat widget
+document.addEventListener('DOMContentLoaded', () => {
+    const chatWidget = document.getElementById('chatWidget');
+    chatWidget.style.display = 'none';
+});
     </script>
 </body>
 </html>
